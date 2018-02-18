@@ -93,6 +93,44 @@ export function createAsyncActionCreator<TResult, TData = any, TMeta = any>(
     };
 }
 
+export interface IReducerBuilder<TState> {
+
+    /**
+     * registers a function as handler to run as reducer method once an action mathcing given action creator is dispatched
+     * @param actionCreator the action creator definition
+     * @param handler the handler that would be called when the action is dispatched
+     */
+    handleAction<TPayload>(actionCreator: IActionCreator<TPayload>, handler: IActionHandler<TState, TPayload>): IReducerBuilder<TState>;
+    /**
+     * registers a function as handler to run as a reducer method once one of the actions matching given action creators is dispatched
+     * @param actionCreators array of action creator definitions
+     * @param handler the handler that would be called when the action matching given action creator's definition is dispatched
+     */
+    handleActions<TPayload>(actionCreators: IActionCreator<TPayload>[], handler: IActionHandler<TState, TPayload>): IReducerBuilder<TState>;
+    /**
+     * Registers async action handlers of the given async action creator definition.
+     * @param actionCreator an async action creator definition
+     * @param stateHandlers state handlers to handler three states of an asynchronous action namely pending, fulfilled and rejected
+     */
+    handleAsyncAction<TPayload extends IAsyncPayload<TResult, TData>, TResult, TData = any, TMeta = any>(
+        actionCreator: IMetaAsyncActionCreator<TResult, TData, TMeta>,
+        stateHandlers: Partial<IAsyncActionHandler<TState, TPayload, TResult, TData, TMeta>>): IReducerBuilder<TState>;
+    /**
+     * Registers async action handlers of the given async action creator definitions.
+     * @param actionCreators an array of async action creator definitions
+     * @param stateHandlers state handlers to handler three states of an asynchronous action namely pending, fulfilled and rejected
+     */
+    handleAsyncActions<TPayload extends IAsyncPayload<TResult, TData>, TResult, TData = any, TMeta = any>(
+        actionCreators: IMetaAsyncActionCreator<TResult, TData, TMeta>[],
+        stateHandlers: Partial<IAsyncActionHandler<TState, TPayload, TResult, TData, TMeta>>): IReducerBuilder<TState>;
+
+    /**
+     * Composes a reducer method with registered action handlers
+     * @param initialState the initial state of the reducer. This is useful when redux dispatches @init action to initialize with default state
+     */
+    build(initialState?: TState): Reducer<TState>;
+}
+
 /** 
  * Create a new instance of reduce builder
  * @type TSTate defines type of state
@@ -163,5 +201,5 @@ export function createReducerBuilder<TState>() {
                 return handler ? handler(finalState, action) : finalState;
             };
         }
-    };
+    } as IReducerBuilder<TState>;
 }
