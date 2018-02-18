@@ -1,11 +1,12 @@
 {
   "name": "@appsflare/redux-reducer-builder",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "An easy to use utility to build type-safe reducers",
   "main": "dist/index.js",
   "module": "es/index.js",
-  "typings": "dist/index.ts",
+  "typings": "dist/index.d.ts",
   "scripts": {
+    "publish":"npm run build && npm publish --access public",
     "build": "tsc && tsc --module esnext --outDir ./es",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
