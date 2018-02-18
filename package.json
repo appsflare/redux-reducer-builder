@@ -1,9 +1,12 @@
 {
   "name": "@appsflare/redux-reducer-builder",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "An easy to use utility to build type-safe reducers",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "module": "es/index.js",
+  "typings": "dist/index.ts",
   "scripts": {
+    "build": "tsc && tsc --module esnext --outDir ./es",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -22,7 +25,6 @@
   },
   "homepage": "https://github.com/appsflare/redux-reducer-builder#readme",
   "dependencies": {
-    "react-redux-typescript": "^3.0.0-rc.3",
     "redux": "^3.7.2"
   },
   "devDependencies": {}

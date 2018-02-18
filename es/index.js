@@ -1,4 +1,3 @@
-"use strict";
 var __assign = (this && this.__assign) || Object.assign || function(t) {
     for (var s, i = 1, n = arguments.length; i < n; i++) {
         s = arguments[i];
@@ -7,7 +6,6 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-Object.defineProperty(exports, "__esModule", { value: true });
 function createPayloadAction(type) {
     return function (payload) { return ({ type: type, payload: payload }); };
 }
@@ -16,19 +14,18 @@ function createPayloadAction(type) {
  * @param type type of the action
  * @param payloadFactory a factory method to create payload for the action
  */
-function createActionCreator(type, payloadFactory) {
+export function createActionCreator(type, payloadFactory) {
     return {
         type: type,
         create: function (data) { return createPayloadAction(type)(payloadFactory(data)); }
     };
 }
-exports.createActionCreator = createActionCreator;
 /**
  * Creates an type safe asynchronous action creator
  * @param type type of the action
  * @param payloadFactory a factory method to create payload for the action
  */
-function createAsyncActionCreator(type, payloadFactory) {
+export function createAsyncActionCreator(type, payloadFactory) {
     return {
         type: type,
         create: function (data) {
@@ -37,12 +34,11 @@ function createAsyncActionCreator(type, payloadFactory) {
         }
     };
 }
-exports.createAsyncActionCreator = createAsyncActionCreator;
 /**
  * Create a new instance of reduce builder
  * @type TSTate defines type of state
 */
-function createReducerBuilder() {
+export function createReducerBuilder() {
     var actionHandlers = new Map();
     return {
         /**
@@ -104,5 +100,4 @@ function createReducerBuilder() {
         }
     };
 }
-exports.createReducerBuilder = createReducerBuilder;
 //# sourceMappingURL=index.js.map

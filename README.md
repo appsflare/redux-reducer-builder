@@ -16,6 +16,10 @@ This library is written to address the above said problems with typescript's typ
 
 Creating an action creators
 
+```sh
+npm install @appsflare/redux-reducer-builder
+```
+
 ~~~ts
 // file: task-action-creator.ts
 import { createActionCreator } from '@appsflare/redux-reducer-builder';

@@ -1,5 +1,28 @@
 import { Reducer } from 'redux';
-import { PayloadAction, PayloadMetaAction, createPayloadAction, FluxStandardAction } from 'react-redux-typescript';
+
+export interface EmptyAction<TType extends string> {
+    type: TType;
+}
+export interface PayloadAction<TType extends string, TPayload> {
+    type: TType;
+    payload: TPayload;
+}
+export interface PayloadMetaAction<TType extends string, TPayload, TMeta> {
+    type: TType;
+    payload: TPayload;
+    meta: TMeta;
+}
+
+export interface FluxStandardAction<TType extends string, TPayload = any, TMeta = any> {
+    type: TType;
+    payload?: TPayload;
+    meta?: TMeta;
+    error?: boolean;
+}
+
+function createPayloadAction<TType, TPayload>(type: TType) {
+    return (payload: TPayload) => ({ type, payload });
+}
 
 export interface ModuleAction<TPayload> extends PayloadAction<string, TPayload> { }
 export interface ModuleMetaAction<TPayload, TMeta> extends PayloadMetaAction<string, TPayload, TMeta> { }
