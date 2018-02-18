@@ -1,0 +1,29 @@
+{
+  "name": "@appsflare/redux-reducer-builder",
+  "version": "1.0.0",
+  "description": "An easy to use utility to build type-safe reducers",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/appsflare/redux-reducer-builder.git"
+  },
+  "keywords": [
+    "redux",
+    "reducer",
+    "builder"
+  ],
+  "author": "me@vjsrinath.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/appsflare/redux-reducer-builder/issues"
+  },
+  "homepage": "https://github.com/appsflare/redux-reducer-builder#readme",
+  "dependencies": {
+    "react-redux-typescript": "^3.0.0-rc.3",
+    "redux": "^3.7.2"
+  },
+  "devDependencies": {}
+}
