@@ -31,7 +31,8 @@
   },
   "homepage": "https://github.com/appsflare/redux-reducer-builder#readme",
   "dependencies": {
-    "redux": "^3.7.2"
+    "redux": "^3.7.2",
+    "typescript": "^2.7.2"
   },
   "devDependencies": {
     "rimraf": "^2.6.2"
