@@ -1,12 +1,14 @@
 {
   "name": "@appsflare/redux-reducer-builder",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "An easy to use utility to build type-safe reducers",
   "main": "dist/index.js",
   "module": "es/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "prepublish": "npm run build",
+    "clear": "rimraf ./dist ./es",
+    "release": "npm publish --access public",
+    "prepublish": "npm run clear && npm run build",
     "build": "tsc && tsc --module esnext --outDir ./es",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -28,5 +30,7 @@
   "dependencies": {
     "redux": "^3.7.2"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "rimraf": "^2.6.2"
+  }
 }

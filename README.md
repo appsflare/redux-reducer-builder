@@ -1,5 +1,8 @@
 # redux-reducer-builder
+![Total Downloads](https://img.shields.io/npm/dt/@appsflare/redux-reducer-builder.svg)
+
 A easy to use utility to build type safe reducers
+
 
 ## Why?
 
@@ -42,13 +45,60 @@ export const TaskActionCreators = {
     createTask: createActionCreator('CREATE-TASK', (args: { task: {id: string; title:string;} })=>{
         return args;
     }),
-    deleteTask: createActionCreator('CREATE-TASK', (args: { taskId: string })=>{
+    deleteTask: createActionCreator('DELETE-TASK', (args: { taskId: string })=>{
         return args;
     })
 }
 ~~~
 
-Creating an reducer for the above created action
+Creating an reducer for the above created actions.
+
+Take a look at the **handleAsyncAction** method below and the parameters passed to it.
+First parameter is the action creator definition itself and the second is an object containing handlers for 3 different states of an asynchronous operation.
+
+Three states of asynchronous operation is nothing but possible promise states, they are,
+
+1. pending
+2. fulfilled
+3. rejected 
+
+So here we just have to create an object containing methods matching the above mentioned states like,
+
+~~~ts
+{
+    pending(state, action){
+        ...
+    },
+    fulfilled(state, action){
+        ...
+    },
+    rejected(state, action){
+        ...
+    }
+}
+~~~
+
+In each of those handler methods, you can access the arguments that was passed to action creator from meta property.
+Of course with it's type information not lost. BONUS right!?
+
+As soon as the asynchronous operation is completed our promise representing the operation would be resolved with a value. The same value can be accessed from action parameter of fulfilled state handler like **"action.payload.result"**.
+
+Of course with the type information of result. Double BONUS right!!?
+
+When the Oops moment occurs during the asynchronous operation that is when it fails our promise representing would be rejcted with a reason for failure.
+
+> Remember to make use of async action creator and handle async actions you would have to use **redux-promise-middleware** or other such compatible middlewares.
+
+The same error can be accessed from action parameter of rejected state handler like **"action.error"**.
+
+Again our type information here also not lost. Triple BONUS!!!?
+
+Okay then what about a normal action like our **TaskActionCreators.createTask**, does it also work?
+
+Yes it would. The **"action.payload"** would reflect the value returned by the payload factory method of action creator definition.
+
+In this case, **"action.payload"** reflects the type of args parameter of **TaskActionCreators.createTask** action creator.
+
 ~~~ts
 // file: task-action-creator.ts
 import { createReducerBuilder } from '@appsflare/redux-reducer-builder';
@@ -56,23 +106,21 @@ import { TaskActionCreators } from './task-action-creator';
 
 export const taskReducer = createReducerBuilder<TaskState>()
                             .handleAsyncAction(TaskActionCreators.loadTasks,{
-                                pending(state, action){
-                                    //here you can access the arguments that was passed to action creator from meta property. Of course with it's type information not last. BONUS right!?
+                                pending(state, action){                               
                                     return state;
                                 },
                                 fulfilled(state, action){
-                                    //here you can retrieve the result of async operation from "action.payload.result". Of course your type information is not lost. Double BONUS!!?
                                     return state;
                                 },
-                                rejected(state, action){
-                                    //Oops, something went wrong with the async operation that we started. We might want to store the error show that we could show some userful error message in the user interface. You can access the error object from action like "action.error". Triple BONUS!!!?
+                                rejected(state, action){                               
                                     return state;
                                 }
                             })
                             .handleAction(TaskActionCreators.createTask, (state, action)=>{
-                                //here action.payload reflects the type of the data returned by action creator. In this case, it would reflect the type of args argument.
+                              
                                 return state;
                             })
+                            .build({
+                                //initial state, but it is optional
+                            });
 ~~~
-
-> Remember to make use of async action creator and handle async actions you would have to use redux-promise-middleware or other such compatible middlewares.
