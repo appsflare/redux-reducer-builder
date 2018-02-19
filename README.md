@@ -8,7 +8,7 @@ A easy to use utility to build type safe reducers
 
 Writing redux applications in plain JavaScript is bit of a challenge as it would bring lot of assumption about the data types in to the table.
 
-Let's say that If I want to create an action first I would have define the type for it and whenever I wanted to address the action I needed to use that action type separately like the places where we are writing reducers.
+Let's say that If I want to create an action first I would have to define the type for it and whenever I wanted to address the action I needed to use that action type separately like the places where we are writing reducers.
 Then again we would have to assume on payload data types. The modern IDEs can't give you any suggestions at the development time.
 
 Well you might say that's okay. But think of a situation where a team of many developers working on a huge project where one creates the action creator and write reducers for the same. Some other times some other member of your team made to work on this who might not understand the action's payload right way when he/she is looking at reducer code first time. That team member then have to put significant amount of time in understanding the code and again assume on payload data type.
