@@ -1,6 +1,6 @@
 {
   "name": "@appsflare/redux-reducer-builder",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "An easy to use utility to build type-safe reducers",
   "main": "dist/index.js",
   "module": "es/index.js",
@@ -20,7 +20,7 @@
     "redux",
     "reducer",
     "builder",
-    "type ssfe",
+    "type safe",
     "type safety",
     "typescript"
   ],
