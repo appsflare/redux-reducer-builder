@@ -6,20 +6,26 @@ A easy to use utility to build type safe reducers
 
 ## Why?
 
-Writing redux applications in plain JavaScript is bit of a challenge as it would bring lot of assumption about the data types in to the table.
+Writing redux applications in plain JavaScript is bit of a challenge as it would bring lot of assumptions about the data types in to the table.
 
-Let's say that If I want to create an action, first I would have to define the type for it and whenever I wanted to address the action I needed to use that action type separately like the places where we are writing reducers.
+Let's say that If I wanted to create an action, first I would have to define the type for it and whenever I wanted to address the action, I would have to use that action type separately like the places where we are writing reducers.
 Then again we would have to assume on payload data types. The modern IDEs can't give you any suggestions at the development time.
 
-Well you might say that's okay. But think of a situation where a team of many developers working on a huge project where one creates the action creator and write reducers for the same. Some other times some other member of your team made to work on this who might not understand the action's payload right way when he/she is looking at reducer code first time. That team member then have to put significant amount of time in understanding the code and again assume on payload data type.
+Well you might say that's okay. But think of a situation where a team of many developers working on a huge project where one creates the action creator and write reducers for the same. Some other times, some other member of your team made to work on this who might not understand the action's payload right way when he/she is looking at reducer code first time. That team member then have to put significant amount of time in understanding the code and again assume on payload data type.
 
-Assumptions may not be a problem but the same leads to an runtime error is a big problem. By making the actions and reducers type safe not only capturing these errors possible at development time but also improves the productivity of team to write less error prone code.
+Assumptions may not be a problem but if the same leads to an runtime error is a big problem.
+So, By making the actions and reducers type safe,
+
+1. Errors could be captured at development time.
+2. Easier and faster to write actions and reducers
+3. Refactoring is a breeze
+4. Less error prone code at runtime
 
 This library is written to address the above said problems with typescript's type definitions powering the action defintions at the development time. 
 
 ## Usage
 
-Creating an action creators
+Creating an action creator
 
 ```sh
 npm install @appsflare/redux-reducer-builder
@@ -78,7 +84,7 @@ So here we just have to create an object containing methods matching the above m
 }
 ~~~
 
-In each of those handler methods, you can access the arguments that was passed to action creator from meta property.
+In each of those handler method, you can access the arguments that was passed to action creator from meta property.
 Of course with it's type information not lost. BONUS right!?
 
 As soon as the asynchronous operation is completed our promise representing the operation would be resolved with a value. The same value can be accessed from action parameter of fulfilled state handler like **"action.payload.result"**.
