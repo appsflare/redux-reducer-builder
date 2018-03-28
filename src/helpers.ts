@@ -18,6 +18,6 @@ export function getRejectedActionType<TResult = any, TData = any, TMeta = any>(a
     return `${actionCreatorDef.type}_REJECTED`;
 }
 
-export function getResolvedActionType<TResult = any, TData = any, TMeta = any>(actionCreatorDef: IMetaAsyncActionCreator<TResult, TData, TMeta>) {
-    return `${actionCreatorDef.type}_RESOLVED`;
+export function getFulFilledActionType<TResult = any, TData = any, TMeta = any>(actionCreatorDef: IMetaAsyncActionCreator<TResult, TData, TMeta>) {
+    return `${actionCreatorDef.type}_FULFILLED`;
 }

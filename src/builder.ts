@@ -4,6 +4,7 @@ import {
     IAsyncPayload, IMetaAsyncActionCreator,
     IAsyncActionHandler, ModuleAction, IReducerBuilder
 } from './types';
+import { getPendingActionType, getFulFilledActionType, getRejectedActionType } from './helpers';
 
 
 /** 
@@ -12,7 +13,7 @@ import {
 */
 export function createReducerBuilder<TState>() {
 
-    var actionHandlers = new Map<string, IActionHandler<TState, any>>();
+    const actionHandlers = new Map<string, IActionHandler<TState, any>>();
     return {
 
         /**
@@ -41,11 +42,17 @@ export function createReducerBuilder<TState>() {
         handleAsyncAction<TPayload extends IAsyncPayload<TResult, TData>, TResult, TData = any, TMeta = any>(
             actionCreator: IMetaAsyncActionCreator<TResult, TData, TMeta>,
             stateHandlers: Partial<IAsyncActionHandler<TState, TPayload, TResult, TData, TMeta>>) {
-            if (stateHandlers.pending) { actionHandlers.set(`${actionCreator.type}_PENDING`, stateHandlers.pending as IActionHandler<TState, any>); }
+            if (stateHandlers.pending) {
+                actionHandlers.set(getPendingActionType(actionCreator), stateHandlers.pending as IActionHandler<TState, any>);
+            }
 
-            if (stateHandlers.fulfilled) { actionHandlers.set(`${actionCreator.type}_FULFILLED`, stateHandlers.fulfilled as IActionHandler<TState, any>); }
+            if (stateHandlers.fulfilled) {
+                actionHandlers.set(getFulFilledActionType(actionCreator), stateHandlers.fulfilled as IActionHandler<TState, any>);
+            }
 
-            if (stateHandlers.rejected) { actionHandlers.set(`${actionCreator.type}_REJECTED`, stateHandlers.rejected); }
+            if (stateHandlers.rejected) {
+                actionHandlers.set(getRejectedActionType(actionCreator), stateHandlers.rejected);
+            }
 
             return this;
         },
