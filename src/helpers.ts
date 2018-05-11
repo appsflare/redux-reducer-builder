@@ -33,5 +33,5 @@ export function dispatchAsync<TResult, TData, TMeta>(dispatch: Dispatch<any>,
     actionCreator: IMetaAsyncActionCreator<TResult, TData, TMeta>,
     data?: TData) {
     const actionResult = dispatch(actionCreator.create(data)) as any;
-    return actionResult as Promise<IAsyncResultPayload<TResult>>;
+    return actionResult.then((i: any) => i.value) as Promise<IAsyncResultPayload<TResult>>;
 }
