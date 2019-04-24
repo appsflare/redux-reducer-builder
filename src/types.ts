@@ -1,20 +1,14 @@
-import { Reducer } from 'redux';
+import { Reducer, AnyAction, Action } from 'redux';
 
-export interface EmptyAction<TType extends string> {
-    type: TType;
-}
-export interface PayloadAction<TType extends string, TPayload> {
-    type: TType;
+export interface PayloadAction<TType extends string, TPayload> extends Action<TType> {
     payload: TPayload;
 }
-export interface PayloadMetaAction<TType extends string, TPayload, TMeta> {
-    type: TType;
+export interface PayloadMetaAction<TType extends string, TPayload, TMeta> extends Action<TType> {
     payload: TPayload;
     meta: TMeta;
 }
 
-export interface FluxStandardAction<TType extends string, TPayload = any, TMeta = any> {
-    type: TType;
+export interface FluxStandardAction<TType extends string, TPayload = any, TMeta = any> extends Action<TType> {
     payload?: TPayload;
     meta?: TMeta;
     error?: boolean;
@@ -38,7 +32,7 @@ export interface IMetaAsyncActionCreator<TResult, TData = any, TMeta = any> {
     create(data?: TData): ModuleMetaAction<IAsyncPayload<TResult>, TMeta>;
 }
 
-export interface IAsyncPayload<TResult, TData=any> {
+export interface IAsyncPayload<TResult, TData = any> {
     promise: Promise<IAsyncResultPayload<TResult>> | ((...args: any[]) => Promise<IAsyncResultPayload<TResult>>);
     data?: TData;
 }
@@ -46,7 +40,8 @@ export interface IAsyncPayload<TResult, TData=any> {
 export interface IAsyncResultPayload<TResult> {
     result: TResult;
 }
-export type IActionHandler<TState, TPayload> = (state: TState, action: ModuleAction<TPayload>) => TState;
+export interface IActionHandler<TState, TPayload> extends Reducer<TState, ModuleAction<TPayload>> {
+}
 
 export interface IAsyncActionHandler<
     TState,
@@ -128,5 +123,5 @@ export interface IReducerBuilder<TState> {
      * Composes a reducer method with registered action handlers
      * @param initialState the initial state of the reducer. This is useful when redux dispatches @init action to initialize with default state
      */
-    build(initialState?: TState): Reducer<TState>;
+    build(initialState?: TState): Reducer<TState, AnyAction>;
 }

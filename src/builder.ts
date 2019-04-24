@@ -1,8 +1,8 @@
-import { Reducer } from 'redux';
+import { Reducer, AnyAction, Action } from 'redux';
 import {
     IActionHandler, IActionCreator,
     IAsyncPayload, IMetaAsyncActionCreator,
-    IAsyncActionHandler, ModuleAction, IReducerBuilder
+    IAsyncActionHandler, IReducerBuilder
 } from './types';
 import { getPendingActionType, getFulFilledActionType, getRejectedActionType } from './helpers';
 
@@ -51,7 +51,7 @@ export function createReducerBuilder<TState>() {
             }
 
             if (stateHandlers.rejected) {
-                actionHandlers.set(getRejectedActionType(actionCreator), stateHandlers.rejected);
+                actionHandlers.set(getRejectedActionType(actionCreator), stateHandlers.rejected as IActionHandler<TState, any>);
             }
 
             return this;
@@ -74,10 +74,11 @@ export function createReducerBuilder<TState>() {
          * Composes a reducer method with registered action handlers
          * @param initialState the initial state of the reducer. This is useful when redux dispatches @init action to initialize with default state
          */
-        build(initialState?: TState): Reducer<TState> {
-            return (state: TState, action: any | ModuleAction<any>) => {
+        build(initialState: TState): Reducer<TState, Action> {
+            return (state: TState | undefined, action: any) => {
 
-                const finalState = state || initialState;
+                const finalState: any = state || initialState;
+
                 const handler = actionHandlers.get(action.type);
 
                 return handler ? handler(finalState, action) : finalState;
