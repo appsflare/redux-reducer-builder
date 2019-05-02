@@ -56,7 +56,7 @@ function createActionCreators<TActions>(namespace: string, actions: IActionCreat
 
     return actionKeys.reduce((prev: any, key: string) => ({
         ...prev,
-        [key]: createActionCreator(`${namespace}/${key}`, (actions as any)[key])
+        [key]: createActionCreator(`${namespace}/${key}`.toUpperCase(), (actions as any)[key])
 
     }), {});
 }
@@ -81,7 +81,7 @@ function createEffectCreators<TEffects>(namespace: string, effects: IEffectCreat
         const payloadFactory = (effects as any)[key];
         return {
             ...prev,
-            [key]: createAsyncActionCreator(`${namespace}/${key}`, (data?: any) => ({
+            [key]: createAsyncActionCreator(`${namespace}/${key}`.toUpperCase(), (data?: any) => ({
                 meta: data,
                 payload: {
                     promise: payloadFactory
@@ -122,32 +122,3 @@ export type EffectCreators<E extends IEffectCreators<T>, T = {}> = {
 };
 
 export type AllActionCreators<A extends IActionCreatorBuilderResult<T1, T2>, T1 = {}, T2 = {}> = ActionCreators<A["actionCreators"]> & EffectCreators<A["effectCreators"]>;
-
-
-
-
-
-
-
-
-
-
-
-// const sampleActionsCreators = sampleActions.actionCreators;
-// const sampleEffectsCreators = sampleActions.effectCreators;
-
-
-
-// type SampleActionsType = typeof sampleActionsCreators;
-// type SampleEffectsType = typeof sampleEffectsCreators;
-
-
-// type SampleActionCreators = { [key in keyof SampleActionsType]: ReplaceReturnType<SampleActionsType[key]["create"], void>; };
-
-// type SampleEffectCreators = { [key in keyof SampleEffectsType]: ReplaceReturnType<SampleEffectsType[key]["create"], ReturnType<SampleEffectsType[key]["create"]>["payload"]>; };
-
-
-// const a: SampleActionCreators;
-// const b: SampleEffectCreators;
-
-// a.add()

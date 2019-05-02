@@ -1,4 +1,4 @@
-export * from './action-creators';
+export * from './action-builder';
 export * from './builder';
 export * from './helpers';
 export * from './types';

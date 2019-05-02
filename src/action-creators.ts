@@ -1,7 +1,5 @@
 import { IActionCreatorFactory, createPayloadAction, IAsyncPayload, IMetaAsyncActionCreatorFactory } from './types';
 
-
-
 /**
  * Creates an type safe action creator
  * @param type type of the action
