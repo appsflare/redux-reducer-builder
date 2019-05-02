@@ -1,4 +1,4 @@
-import { IMetaAsyncActionCreator, IAsyncResultPayload } from './types';
+import { IMetaAsyncActionCreatorFactory, IAsyncResultPayload } from './types';
 import { Dispatch } from 'redux';
 
 export function isAsyncAction(action: any) {
@@ -11,15 +11,15 @@ export function isAsyncAction(action: any) {
     );
 }
 
-export function getPendingActionType<TResult = any, TData = any, TMeta = any>(actionCreatorDef: IMetaAsyncActionCreator<TResult, TData, TMeta>) {
+export function getPendingActionType<TResult = any, TData = any, TMeta = any>(actionCreatorDef: IMetaAsyncActionCreatorFactory<TResult, TData, TMeta>) {
     return `${actionCreatorDef.type}_PENDING`;
 }
 
-export function getRejectedActionType<TResult = any, TData = any, TMeta = any>(actionCreatorDef: IMetaAsyncActionCreator<TResult, TData, TMeta>) {
+export function getRejectedActionType<TResult = any, TData = any, TMeta = any>(actionCreatorDef: IMetaAsyncActionCreatorFactory<TResult, TData, TMeta>) {
     return `${actionCreatorDef.type}_REJECTED`;
 }
 
-export function getFulFilledActionType<TResult = any, TData = any, TMeta = any>(actionCreatorDef: IMetaAsyncActionCreator<TResult, TData, TMeta>) {
+export function getFulFilledActionType<TResult = any, TData = any, TMeta = any>(actionCreatorDef: IMetaAsyncActionCreatorFactory<TResult, TData, TMeta>) {
     return `${actionCreatorDef.type}_FULFILLED`;
 }
 
@@ -30,8 +30,25 @@ export function getFulFilledActionType<TResult = any, TData = any, TMeta = any>(
  * @param data the payload needed for the action
  */
 export function dispatchAsync<TResult, TData, TMeta>(dispatch: Dispatch<any>,
-    actionCreator: IMetaAsyncActionCreator<TResult, TData, TMeta>,
+    actionCreator: IMetaAsyncActionCreatorFactory<TResult, TData, TMeta>,
     data?: TData) {
     const actionResult = dispatch(actionCreator.create(data)) as any;
     return actionResult.then((i: any) => i.value) as Promise<IAsyncResultPayload<TResult>>;
 }
+
+/**
+   * Produces a new object from the given object by prepending a value before every property name
+   * @param {Object} obj any object
+   * @param {String} key value to prepend every property of the given object
+   */
+export function prependKeys<O extends Object>(obj: O, key = '') {
+    return Object.keys(obj).reduce((prev: any, curr) => {
+        prev[`${key}${curr}`] = (obj as any)[curr];
+        return prev;
+    }, {}) as O;
+}
+
+export type ArgumentTypes<T> = T extends (...args: infer U) => infer R ? U : never;
+export type ReplaceReturnType<T, TNewReturn> = (...a: ArgumentTypes<T>) => TNewReturn;
+
+export type Nullable<T> = { [K in keyof T]+?: T[K]; };

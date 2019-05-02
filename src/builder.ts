@@ -1,10 +1,93 @@
-import { Reducer, AnyAction, Action } from 'redux';
+import { Reducer, Action, AnyAction } from 'redux';
 import {
-    IActionHandler, IActionCreator,
-    IAsyncPayload, IMetaAsyncActionCreator,
+    IActionHandler, IActionCreatorFactory,
+    IAsyncPayload, IMetaAsyncActionCreatorFactory,
     IAsyncActionHandler, IReducerBuilder
 } from './types';
-import { getPendingActionType, getFulFilledActionType, getRejectedActionType } from './helpers';
+import { getPendingActionType, getFulFilledActionType, getRejectedActionType, Nullable } from './helpers';
+
+import { IActionCreatorBuilderResult, ActionCreators, AllActionCreators, IActionPayloadCreator, IAsyncActionPayloadCreator, createActionCreatorBuilder, EffectCreators, IActionCreators, IEffectCreators } from './action-builder';
+
+
+const SampleActions = createActionCreatorBuilder({
+    namespace: 'CORE/CONTROLS',
+    actions: {
+
+        setActiveControlId: (data?: { controlId?: string; }) => data,
+
+        add: (args?: { name: string }) => args,
+        // remove: (args?: { id: string }) => args,
+    },
+    effects: {
+
+        addControl: (data?: { type: string; settings: any; }) => ({
+            meta: data,
+            payload: async () => {
+                return { data, result: data };
+            }
+
+        }),
+        addAsync: (args?: { name: string }) => ({
+            meta: args,
+            payload: () => Promise.resolve({ result: true })
+        }),
+
+    }
+});
+
+
+SampleActions.actionCreators.setActiveControlId.create()
+SampleActions.effectCreators.addControl.create()
+
+
+export type IActionHandlers<TState, AC extends IActionCreators<A>, A = {}> = {
+
+    [K in keyof AC]+?: AC[K] extends IActionCreatorFactory<infer TD, infer TP> ?
+    IActionHandler<TState, TP> : never;
+}
+
+export type IEffectHandlers<TState, EF extends IEffectCreators<E>, E = {}> = {
+
+    [K in keyof EF]+?: EF[K] extends IMetaAsyncActionCreatorFactory<infer TR, infer TD, infer TM> ?
+    IAsyncActionHandler<TState, IAsyncPayload<TR>, TR, TM> : never;
+}
+
+
+interface AllHandlers<TState, ABR extends IActionCreatorBuilderResult<A, E>, AC = ABR['actionCreators'], EC = ABR['effectCreators'], A = {}, E = {}> {
+    actions?: IActionHandlers<TState, AC>;
+    effects?: IEffectHandlers<TState, EC>;
+}
+
+// const a: IActionHandlers<{}, typeof SampleActions>;
+// a.add()
+
+export function buildReducer<ABR extends IActionCreatorBuilderResult<A, E>, TState = {}, A = {}, E = {}>(ac: ABR,
+    handlers: AllHandlers<TState, ABR>,
+    initialState?: TState
+) {
+
+
+
+    return function (state?: TState, action: AnyAction) {
+
+    };
+
+}
+
+buildReducer(SampleActions, {
+    actions: {
+
+        add: (state, action) => state,
+        // setActiveControlId: (state, action) => state
+    },
+    effects: {
+        addAsync: {
+            pending: (state, action) => state
+        }
+    }
+    //setActiveControlId: (state, action) => state
+
+}, { email: '' });
 
 
 /** 
@@ -21,7 +104,7 @@ export function createReducerBuilder<TState>() {
          * @param actionCreator the action creator definition
          * @param handler the handler that would be called when the action is dispatched
          */
-        handleAction<TPayload>(actionCreator: IActionCreator<TPayload>, handler: IActionHandler<TState, TPayload>) {
+        handleAction<TPayload>(actionCreator: IActionCreatorFactory<TPayload>, handler: IActionHandler<TState, TPayload>) {
             actionHandlers.set(actionCreator.type, handler);
             return this;
         },
@@ -30,7 +113,7 @@ export function createReducerBuilder<TState>() {
          * @param actionCreators array of action creator definitions
          * @param handler the handler that would be called when the action matching given action creator's definition is dispatched
          */
-        handleActions<TPayload>(actionCreators: IActionCreator<TPayload>[], handler: IActionHandler<TState, TPayload>) {
+        handleActions<TPayload>(actionCreators: IActionCreatorFactory<TPayload>[], handler: IActionHandler<TState, TPayload>) {
             actionCreators.forEach(a => this.handleAction(a, handler));
             return this;
         },
@@ -39,9 +122,9 @@ export function createReducerBuilder<TState>() {
          * @param actionCreator an async action creator definition
          * @param stateHandlers state handlers to handler three states of an asynchronous action namely pending, fulfilled and rejected
          */
-        handleAsyncAction<TPayload extends IAsyncPayload<TResult, TData>, TResult, TData = any, TMeta = any>(
-            actionCreator: IMetaAsyncActionCreator<TResult, TData, TMeta>,
-            stateHandlers: Partial<IAsyncActionHandler<TState, TPayload, TResult, TData, TMeta>>) {
+        handleAsyncAction<TPayload extends IAsyncPayload<TResult>, TResult, TData = any, TMeta = any>(
+            actionCreator: IMetaAsyncActionCreatorFactory<TResult, TData, TMeta>,
+            stateHandlers: Partial<IAsyncActionHandler<TState, TPayload, TResult, TMeta>>) {
             if (stateHandlers.pending) {
                 actionHandlers.set(getPendingActionType(actionCreator), stateHandlers.pending as IActionHandler<TState, any>);
             }
@@ -61,9 +144,9 @@ export function createReducerBuilder<TState>() {
          * @param actionCreators an array of async action creator definitions
          * @param stateHandlers state handlers to handler three states of an asynchronous action namely pending, fulfilled and rejected
          */
-        handleAsyncActions<TPayload extends IAsyncPayload<TResult, TData>, TResult, TData = any, TMeta = any>(
-            actionCreators: IMetaAsyncActionCreator<TResult, TData, TMeta>[],
-            stateHandlers: Partial<IAsyncActionHandler<TState, TPayload, TResult, TData, TMeta>>) {
+        handleAsyncActions<TPayload extends IAsyncPayload<TResult>, TResult, TData = any, TMeta = any>(
+            actionCreators: IMetaAsyncActionCreatorFactory<TResult, TData, TMeta>[],
+            stateHandlers: Partial<IAsyncActionHandler<TState, TPayload, TResult, TMeta>>) {
 
             actionCreators.forEach(a => this.handleAsyncAction(a, stateHandlers));
 
