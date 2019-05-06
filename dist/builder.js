@@ -11,7 +11,6 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var action_builder_1 = require("./action-builder");
 /**
  * Creates type-safe reducer for actions and effects creators using the respective handlers.
  * @param ac action creator builder result
@@ -49,28 +48,4 @@ function buildReducer(ac, handlersFactory, initialState) {
     };
 }
 exports.buildReducer = buildReducer;
-var SampleActions = action_builder_1.createActionCreatorBuilder({
-    namespace: 'CORE/CONTROLS',
-    actions: {
-        setActiveControlId: function (data) { return data; },
-        add: function (args) { return args; },
-        remove: function (args) { return args; },
-    },
-    effects: {
-        // addControl: (data?: { type: string; settings: any; }) => ({
-        //     meta: data,
-        //     payload: async () => {
-        //         return { data, result: data };
-        //     }
-        // }),
-        addAsync: function (args) { return ({
-            meta: args,
-            payload: function () { return Promise.resolve({ result: true }); }
-        }); },
-    }
-});
-buildReducer(SampleActions, function (o) {
-    o.handlers.add(function (s, a) { return s; });
-    return new Map();
-});
 //# sourceMappingURL=builder.js.map
