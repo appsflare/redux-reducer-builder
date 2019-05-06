@@ -31,4 +31,17 @@ function dispatchAsync(dispatch, actionCreator, data) {
     return actionResult.then(function (i) { return i.value; });
 }
 exports.dispatchAsync = dispatchAsync;
+/**
+   * Produces a new object from the given object by prepending a value before every property name
+   * @param {Object} obj any object
+   * @param {String} key value to prepend every property of the given object
+   */
+function prependKeys(obj, key) {
+    if (key === void 0) { key = ''; }
+    return Object.keys(obj).reduce(function (prev, curr) {
+        prev["" + key + curr] = obj[curr];
+        return prev;
+    }, {});
+}
+exports.prependKeys = prependKeys;
 //# sourceMappingURL=helpers.js.map
