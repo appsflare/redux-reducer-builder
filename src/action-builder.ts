@@ -1,6 +1,7 @@
 import { createActionCreator, createAsyncActionCreator } from './action-creators';
 import { IActionCreatorFactory, IMetaAsyncActionCreatorFactory, IAsyncPayload } from './types';
 import { ReplaceReturnType } from './helpers';
+import { Dispatch, Action } from 'redux';
 // import { ReplaceReturnType } from './helpers';
 
 export type IActionPayloadCreator<TData, TPayload> = (data?: TData) => TPayload | undefined;
@@ -15,12 +16,12 @@ export interface IAsyncActionPayloadCreator<TResult, TData = any, TMeta = any> {
 
 }
 
-type IActionCreatorsMap<ACM> = {
+export type IActionCreatorsMap<ACM> = {
     [K in keyof ACM]: ACM[K] extends IActionPayloadCreator<infer TData, infer TPayload> ?
     IActionPayloadCreator<TData, TPayload> : ACM[K];
 };
 
-type IEffectCreatorsMap<ECM> = {
+export type IEffectCreatorsMap<ECM> = {
     [K in keyof ECM]: ECM[K] extends IAsyncActionPayloadCreator<infer TResult, infer TData, infer TMeta> ?
     IAsyncActionPayloadCreator<TResult, TData, TMeta> : ECM[K];
 }
@@ -47,7 +48,7 @@ const actions = {
 type TypeOfActions = typeof actions;
 
 
-function createActionCreators<TActions>(namespace: string, actions: IActionCreatorsMap<TActions>): IActionCreators<TActions> {
+function createActionCreators<TAPF>(namespace: string, actions: IActionCreatorsMap<TAPF>): IActionCreators<TAPF> {
     if (namespace === undefined || actions === undefined) {
         throw new Error('namespaces/actions cannot be undefined');
     }
@@ -122,3 +123,29 @@ export type EffectCreators<E extends IEffectCreators<T>, T = {}> = {
 };
 
 export type AllActionCreators<A extends IActionCreatorBuilderResult<T1, T2>, T1 = {}, T2 = {}> = ActionCreators<A["actionCreators"]> & EffectCreators<A["effectCreators"]>;
+
+
+
+export function bindDispatcher<TPayload, TData = any>(actionCreatorFactory: IActionCreatorFactory<TPayload, TData>,
+    dispatch: Dispatch): ReplaceReturnType<IActionCreatorFactory<TPayload, TData>["create"], void> {
+    return (args: any) => dispatch(actionCreatorFactory.create(args));
+}
+
+export function bindActionsToDispatcher<TActions>(actionCreatorsFatory: IActionCreators<TActions>,
+    dispatch: Dispatch): ActionCreators<IActionCreators<TActions>> {
+
+    return Object.keys(actionCreatorsFatory).reduce((prev: any, key: string) => ({
+        ...prev,
+        [key]: bindDispatcher((actionCreatorsFatory as any)[key], dispatch)
+    })) as any;
+}
+
+export function bindEffectsToDispatcher<TActions>(effectCreatorsFatory: IEffectCreators<TActions>,
+    dispatch: Dispatch): EffectCreators<IActionCreators<TActions>> {
+
+    return Object.keys(effectCreatorsFatory).reduce((prev: any, key: string) => ({
+        ...prev,
+        [key]: bindDispatcher((effectCreatorsFatory as any)[key], dispatch)
+    })) as any;
+
+}
