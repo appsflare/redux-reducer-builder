@@ -85,7 +85,7 @@ function createEffectCreators<TEffects>(namespace: string, effects: IEffectCreat
             [key]: createAsyncActionCreator(`${namespace}/${key}`.toUpperCase(), (data?: any) => ({
                 meta: data,
                 payload: {
-                    promise: payloadFactory
+                    promise: payloadFactory()
                 }
             }) as any)
         };
@@ -131,6 +131,12 @@ export function bindDispatcher<TPayload, TData = any>(actionCreatorFactory: IAct
     return (args: any) => dispatch(actionCreatorFactory.create(args));
 }
 
+export function bindEffectDispatcher<TResult, TData = any, TMeta = any>(
+    actionCreatorFactory: IMetaAsyncActionCreatorFactory<TResult, TData, TMeta>,
+    dispatch: Dispatch): ReplaceReturnType<IMetaAsyncActionCreatorFactory<TResult, TData, TMeta>["create"], void> {
+    return (args: any) => dispatch(actionCreatorFactory.create(args));
+}
+
 export function bindActionsToDispatcher<TActions>(actionCreatorsFatory: IActionCreators<TActions>,
     dispatch: Dispatch): ActionCreators<IActionCreators<TActions>> {
 
@@ -140,12 +146,12 @@ export function bindActionsToDispatcher<TActions>(actionCreatorsFatory: IActionC
     })) as any;
 }
 
-export function bindEffectsToDispatcher<TActions>(effectCreatorsFatory: IEffectCreators<TActions>,
-    dispatch: Dispatch): EffectCreators<IActionCreators<TActions>> {
+export function bindEffectsToDispatcher<TEffects>(effectCreatorsFatory: IEffectCreators<TEffects>,
+    dispatch: Dispatch): EffectCreators<IEffectCreators<TEffects>> {
 
     return Object.keys(effectCreatorsFatory).reduce((prev: any, key: string) => ({
         ...prev,
-        [key]: bindDispatcher((effectCreatorsFatory as any)[key], dispatch)
+        [key]: bindEffectDispatcher((effectCreatorsFatory as any)[key], dispatch)
     })) as any;
 
 }
