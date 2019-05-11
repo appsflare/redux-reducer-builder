@@ -37,7 +37,7 @@ function createEffectCreators(namespace, effects) {
         return __assign({}, prev, (_a = {}, _a[key] = action_creators_1.createAsyncActionCreator((namespace + "/" + key).toUpperCase(), function (data) { return ({
             meta: data,
             payload: {
-                promise: payloadFactory
+                promise: payloadFactory()
             }
         }); }), _a));
     }, {});
@@ -57,6 +57,10 @@ function bindDispatcher(actionCreatorFactory, dispatch) {
     return function (args) { return dispatch(actionCreatorFactory.create(args)); };
 }
 exports.bindDispatcher = bindDispatcher;
+function bindEffectDispatcher(actionCreatorFactory, dispatch) {
+    return function (args) { return dispatch(actionCreatorFactory.create(args)); };
+}
+exports.bindEffectDispatcher = bindEffectDispatcher;
 function bindActionsToDispatcher(actionCreatorsFatory, dispatch) {
     return Object.keys(actionCreatorsFatory).reduce(function (prev, key) {
         var _a;
@@ -67,7 +71,7 @@ exports.bindActionsToDispatcher = bindActionsToDispatcher;
 function bindEffectsToDispatcher(effectCreatorsFatory, dispatch) {
     return Object.keys(effectCreatorsFatory).reduce(function (prev, key) {
         var _a;
-        return (__assign({}, prev, (_a = {}, _a[key] = bindDispatcher(effectCreatorsFatory[key], dispatch), _a)));
+        return (__assign({}, prev, (_a = {}, _a[key] = bindEffectDispatcher(effectCreatorsFatory[key], dispatch), _a)));
     });
 }
 exports.bindEffectsToDispatcher = bindEffectsToDispatcher;

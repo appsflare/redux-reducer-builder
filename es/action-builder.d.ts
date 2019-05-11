@@ -39,6 +39,7 @@ export declare type EffectCreators<E extends IEffectCreators<T>, T = {}> = {
 };
 export declare type AllActionCreators<A extends IActionCreatorBuilderResult<T1, T2>, T1 = {}, T2 = {}> = ActionCreators<A["actionCreators"]> & EffectCreators<A["effectCreators"]>;
 export declare function bindDispatcher<TPayload, TData = any>(actionCreatorFactory: IActionCreatorFactory<TPayload, TData>, dispatch: Dispatch): ReplaceReturnType<IActionCreatorFactory<TPayload, TData>["create"], void>;
+export declare function bindEffectDispatcher<TResult, TData = any, TMeta = any>(actionCreatorFactory: IMetaAsyncActionCreatorFactory<TResult, TData, TMeta>, dispatch: Dispatch): ReplaceReturnType<IMetaAsyncActionCreatorFactory<TResult, TData, TMeta>["create"], void>;
 export declare function bindActionsToDispatcher<TActions>(actionCreatorsFatory: IActionCreators<TActions>, dispatch: Dispatch): ActionCreators<IActionCreators<TActions>>;
-export declare function bindEffectsToDispatcher<TActions>(effectCreatorsFatory: IEffectCreators<TActions>, dispatch: Dispatch): EffectCreators<IActionCreators<TActions>>;
+export declare function bindEffectsToDispatcher<TEffects>(effectCreatorsFatory: IEffectCreators<TEffects>, dispatch: Dispatch): EffectCreators<IEffectCreators<TEffects>>;
 export {};

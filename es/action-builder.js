@@ -35,7 +35,7 @@ function createEffectCreators(namespace, effects) {
         return __assign({}, prev, (_a = {}, _a[key] = createAsyncActionCreator((namespace + "/" + key).toUpperCase(), function (data) { return ({
             meta: data,
             payload: {
-                promise: payloadFactory
+                promise: payloadFactory()
             }
         }); }), _a));
     }, {});
@@ -53,6 +53,9 @@ export function createActionCreatorBuilder(options) {
 export function bindDispatcher(actionCreatorFactory, dispatch) {
     return function (args) { return dispatch(actionCreatorFactory.create(args)); };
 }
+export function bindEffectDispatcher(actionCreatorFactory, dispatch) {
+    return function (args) { return dispatch(actionCreatorFactory.create(args)); };
+}
 export function bindActionsToDispatcher(actionCreatorsFatory, dispatch) {
     return Object.keys(actionCreatorsFatory).reduce(function (prev, key) {
         var _a;
@@ -62,7 +65,7 @@ export function bindActionsToDispatcher(actionCreatorsFatory, dispatch) {
 export function bindEffectsToDispatcher(effectCreatorsFatory, dispatch) {
     return Object.keys(effectCreatorsFatory).reduce(function (prev, key) {
         var _a;
-        return (__assign({}, prev, (_a = {}, _a[key] = bindDispatcher(effectCreatorsFatory[key], dispatch), _a)));
+        return (__assign({}, prev, (_a = {}, _a[key] = bindEffectDispatcher(effectCreatorsFatory[key], dispatch), _a)));
     });
 }
 //# sourceMappingURL=action-builder.js.map
