@@ -14,7 +14,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var internal_helpers_1 = require("./internal-helpers");
 function createActionCreators(options) {
     var namespace = options.namespace, actions = options.actions;
-    return Object.keys(actions).reduce(function (prev, actionName) {
+    var actionCreators = Object.keys(actions).reduce(function (prev, actionName) {
         var _a;
         var payloadFactory = actions[actionName];
         return __assign({}, prev, (_a = {}, _a[actionName] = function (args) { return ({
@@ -23,6 +23,7 @@ function createActionCreators(options) {
             payload: payloadFactory(args)
         }); }, _a));
     }, internal_helpers_1.setNamespace({}, namespace));
+    return { actionCreators: actionCreators };
 }
 exports.createActionCreators = createActionCreators;
 //# sourceMappingURL=action-builder.js.map

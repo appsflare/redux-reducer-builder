@@ -1,6 +1,6 @@
 {
   "name": "@appsflare/redux-reducer-builder",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "description": "An easy to use utility to build type-safe actions and reducers",
   "main": "dist/index.js",
   "module": "es/index.js",

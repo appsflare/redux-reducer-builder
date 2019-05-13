@@ -12,7 +12,7 @@ var __assign = (this && this.__assign) || function () {
 import { setNamespace } from './internal-helpers';
 export function createActionCreators(options) {
     var namespace = options.namespace, actions = options.actions;
-    return Object.keys(actions).reduce(function (prev, actionName) {
+    var actionCreators = Object.keys(actions).reduce(function (prev, actionName) {
         var _a;
         var payloadFactory = actions[actionName];
         return __assign({}, prev, (_a = {}, _a[actionName] = function (args) { return ({
@@ -21,5 +21,6 @@ export function createActionCreators(options) {
             payload: payloadFactory(args)
         }); }, _a));
     }, setNamespace({}, namespace));
+    return { actionCreators: actionCreators };
 }
 //# sourceMappingURL=action-builder.js.map
