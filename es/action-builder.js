@@ -9,9 +9,10 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-export function createActionBuilder(options) {
-    var namespace = options.namespace, actions = options.actions, thunks = options.thunks;
-    var actionCreators = Object.keys(actions).reduce(function (prev, actionName) {
+import { setNamespace } from './internal-helpers';
+export function createActionsBuilder(options) {
+    var namespace = options.namespace, actions = options.actions;
+    return Object.keys(actions).reduce(function (prev, actionName) {
         var _a;
         var payloadFactory = actions[actionName];
         return __assign({}, prev, (_a = {}, _a[actionName] = function (args) { return ({
@@ -19,12 +20,6 @@ export function createActionBuilder(options) {
             meta: args,
             payload: payloadFactory(args)
         }); }, _a));
-    }, {});
-    var thunkCreators = Object.keys(thunks).reduce(function (prev, thunkName) {
-        var _a;
-        var thunkFactory = thunks[thunkName];
-        return __assign({}, prev, (_a = {}, _a[thunkName] = function (args) { return thunkFactory(args); }, _a));
-    }, {});
-    return { namespace: namespace, actionCreators: actionCreators, thunkCreators: thunkCreators };
+    }, setNamespace({}, namespace));
 }
 //# sourceMappingURL=action-builder.js.map

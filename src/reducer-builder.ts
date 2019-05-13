@@ -1,8 +1,9 @@
 import { Reducer, AnyAction } from 'redux';
 import {
     IActionBuilderResult, IActionCreatorMap, ModuleAction,
-    IActionCreatorsFactoryMap, IActionCreator
+    IActionCreatorFactoryMap, IActionCreator
 } from './action-builder';
+import { getNamespace } from './internal-helpers';
 
 
 
@@ -17,14 +18,14 @@ export interface IAsyncActionHandler<TState, TResult, TMeta = any> {
 }
 
 
-export type IActionHandlers<TState, AC extends IActionCreatorMap<TAFM, A>, TAFM extends IActionCreatorsFactoryMap<A>, A = {}> = {
+export type IActionHandlers<TState, AC extends IActionCreatorMap<TAFM, A>, TAFM extends IActionCreatorFactoryMap<A>, A = {}> = {
 
     [K in keyof AC]+?: AC[K] extends IActionCreator<infer TA, infer TP, infer TM> ?
     IActionHandler<TState, TP, TM> : never;
 }
 
 export type IActionHandlersFactory<TState, AC extends IActionCreatorMap<TAFM, A>, A = {},
-    TAFM extends IActionCreatorsFactoryMap<A> = IActionCreatorsFactoryMap<A>> = {
+    TAFM extends IActionCreatorFactoryMap<A> = IActionCreatorFactoryMap<A>> = {
 
         [K in keyof AC]: AC[K] extends IActionCreator<infer TA, infer TP, infer TM> ?
         TP extends Promise<infer TResult> ?
@@ -34,7 +35,7 @@ export type IActionHandlersFactory<TState, AC extends IActionCreatorMap<TAFM, A>
     }
 
 
-interface IHandlersFactory<TState, ABR extends IActionBuilderResult<A, TH>, AC = ABR['actionCreators'], A = {}, TH = {}> {
+interface IHandlersFactory<TState, ABR extends IActionBuilderResult<A>, AC = ABR['actionCreators'], A = {}> {
     handlers: IActionHandlersFactory<TState, AC>;
 }
 
@@ -44,23 +45,24 @@ interface IHandlersFactory<TState, ABR extends IActionBuilderResult<A, TH>, AC =
  * @param handlers action and effect handlers
  * @param initialState the initial state to be used by the reducer
  */
-export function buildReducer<ABR extends IActionBuilderResult<A, E>, TState = {}, A = {}, E = {}>(ac: ABR,
+export function buildReducer<ABR extends IActionBuilderResult<A>, TState = {}, A = {}>(ac: ABR,
     handlersFactory: (options: IHandlersFactory<TState, ABR>) => void,
     initialState?: TState
 ): Reducer<TState, AnyAction> {
 
     const actionHandlers = new Map<string, IActionHandler<TState, any>>();
 
+    const namespace = getNamespace(ac);
     const actionHandlerFactories = Object.keys(ac.actionCreators).reduce((prev: any, key) => ({
         ...prev,
         [key]: (a: any) => {
             const isActionHandler = a instanceof Function;
             if (isActionHandler) {
-                actionHandlers.set(`${ac.namespace}/${key}`.toUpperCase(), a);
+                actionHandlers.set(`${namespace}/${key}`.toUpperCase(), a);
                 return;
             }
             Object.keys(a).forEach(stateHandlerKey => {
-                actionHandlers.set(`${ac.namespace}/${key}-${stateHandlerKey}`.toUpperCase(), a[stateHandlerKey] as IActionHandler<TState, any>);
+                actionHandlers.set(`${namespace}/${key}-${stateHandlerKey}`.toUpperCase(), a[stateHandlerKey] as IActionHandler<TState, any>);
             });
         }
     }), {});

@@ -6,4 +6,5 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./action-builder"));
 __export(require("./dispatchers"));
 __export(require("./reducer-builder"));
+__export(require("./thunk-builder"));
 //# sourceMappingURL=index.js.map

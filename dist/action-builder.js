@@ -11,9 +11,10 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-function createActionBuilder(options) {
-    var namespace = options.namespace, actions = options.actions, thunks = options.thunks;
-    var actionCreators = Object.keys(actions).reduce(function (prev, actionName) {
+var internal_helpers_1 = require("./internal-helpers");
+function createActionsBuilder(options) {
+    var namespace = options.namespace, actions = options.actions;
+    return Object.keys(actions).reduce(function (prev, actionName) {
         var _a;
         var payloadFactory = actions[actionName];
         return __assign({}, prev, (_a = {}, _a[actionName] = function (args) { return ({
@@ -21,13 +22,7 @@ function createActionBuilder(options) {
             meta: args,
             payload: payloadFactory(args)
         }); }, _a));
-    }, {});
-    var thunkCreators = Object.keys(thunks).reduce(function (prev, thunkName) {
-        var _a;
-        var thunkFactory = thunks[thunkName];
-        return __assign({}, prev, (_a = {}, _a[thunkName] = function (args) { return thunkFactory(args); }, _a));
-    }, {});
-    return { namespace: namespace, actionCreators: actionCreators, thunkCreators: thunkCreators };
+    }, internal_helpers_1.setNamespace({}, namespace));
 }
-exports.createActionBuilder = createActionBuilder;
+exports.createActionsBuilder = createActionsBuilder;
 //# sourceMappingURL=action-builder.js.map

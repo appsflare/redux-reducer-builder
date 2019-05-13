@@ -14,7 +14,7 @@ export declare type IActionHandlers<TState, AC extends IActionCreatorMap<TAFM, A
 export declare type IActionHandlersFactory<TState, AC extends IActionCreatorMap<TAFM, A>, A = {}, TAFM extends IActionCreatorsFactoryMap<A> = IActionCreatorsFactoryMap<A>> = {
     [K in keyof AC]: AC[K] extends IActionCreator<infer TA, infer TP, infer TM> ? TP extends Promise<infer TResult> ? (handler: IAsyncActionHandler<TState, TResult, TM>) => void : AC[K] extends IActionCreator<infer TA, infer TP, infer TM> ? (handler: IActionHandler<TState, TP>) => void : never : never;
 };
-interface IHandlersFactory<TState, ABR extends IActionBuilderResult<A, TH>, AC = ABR['actionCreators'], A = {}, TH = {}> {
+interface IHandlersFactory<TState, ABR extends IActionBuilderResult<A>, AC = ABR['actionCreators'], A = {}> {
     handlers: IActionHandlersFactory<TState, AC>;
 }
 /**
@@ -23,5 +23,5 @@ interface IHandlersFactory<TState, ABR extends IActionBuilderResult<A, TH>, AC =
  * @param handlers action and effect handlers
  * @param initialState the initial state to be used by the reducer
  */
-export declare function buildReducer<ABR extends IActionBuilderResult<A, E>, TState = {}, A = {}, E = {}>(ac: ABR, handlersFactory: (options: IHandlersFactory<TState, ABR>) => void, initialState?: TState): Reducer<TState, AnyAction>;
+export declare function buildReducer<ABR extends IActionBuilderResult<A>, TState = {}, A = {}>(ac: ABR, handlersFactory: (options: IHandlersFactory<TState, ABR>) => void, initialState?: TState): Reducer<TState, AnyAction>;
 export {};

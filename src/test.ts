@@ -1,24 +1,25 @@
-import { createActionBuilder } from './action-builder';
+import { createActionCreators } from './action-builder';
+import { createThunkCreators } from './thunk-builder';
 import { buildReducer } from './reducer-builder';
-import { bindActionCreators } from './dispatchers';
+import { bindActionCreators, bindActionCreator, bindThunkCreator, bindThunkCreators } from './dispatchers';
 
 
-const TaskActions = createActionBuilder({
+const TaskActions = createActionCreators({
     namespace: 'CORE/TASKS',
     actions: {
         create: (args?: { name: string }) => args,
         createAsync: (args?: { name: string }) => Promise.resolve(args),
-    },
-    thunks: {
-        doCreate: (args?: { name: string }) => function (dispatch) {
-            this
-            dispatch({ type: '', payload: args })
-        },
     }
 });
 
+TaskActions.actionCreators.create()
+
+const TaskThunks = createThunkCreators({
+    doCreate: (args?: { name: string }) => (dispatch, getState) => Promise.resolve(args!),
+    doUpdate: (args?: { name: string }) => (dispatch, getState) => { },
+});
+
 TaskActions.actionCreators.create();
-TaskActions.thunkCreators.doCreate();
 
 const reducer = buildReducer(TaskActions, o => {
     o.handlers.create((s, a) => s);
@@ -29,5 +30,15 @@ const reducer = buildReducer(TaskActions, o => {
 
 
 
-const a = bindActionCreators(TaskActions.actionCreators, () => { } as any);
+const a = bindActionCreators(TaskActions.actionCreators, (() => { }) as any);
 a.create()
+
+const createAsync = bindThunkCreator(TaskThunks.doCreate, (() => { }) as any);
+createAsync()
+
+const updateAsync = bindThunkCreator(TaskThunks.doUpdate, (() => { }) as any);
+updateAsync;
+
+const thunks = bindThunkCreators(TaskThunks, (() => { }) as any);
+
+thunks.doUpdate()
