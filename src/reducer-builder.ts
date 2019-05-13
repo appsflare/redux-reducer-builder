@@ -62,7 +62,7 @@ export function buildReducer<ABR extends IActionBuilderResult<A>, TState = {}, A
                 return;
             }
             Object.keys(a).forEach(stateHandlerKey => {
-                actionHandlers.set(`${namespace}/${key}-${stateHandlerKey}`.toUpperCase(), a[stateHandlerKey] as IActionHandler<TState, any>);
+                actionHandlers.set(`${namespace}/${key}_${stateHandlerKey}`.toUpperCase(), a[stateHandlerKey] as IActionHandler<TState, any>);
             });
         }
     }), {});

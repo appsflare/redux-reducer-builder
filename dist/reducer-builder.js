@@ -20,7 +20,7 @@ var internal_helpers_1 = require("./internal-helpers");
  */
 function buildReducer(ac, handlersFactory, initialState) {
     var actionHandlers = new Map();
-    var namespace = internal_helpers_1.getNamespace(ac);
+    var namespace = internal_helpers_1.getNamespace(ac.actionCreators);
     var actionHandlerFactories = Object.keys(ac.actionCreators).reduce(function (prev, key) {
         var _a;
         return (__assign({}, prev, (_a = {}, _a[key] = function (a) {
