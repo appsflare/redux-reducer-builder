@@ -1,3 +1,4 @@
+"use strict";
 var __assign = (this && this.__assign) || function () {
     __assign = Object.assign || function(t) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
@@ -9,13 +10,14 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Creates type-safe reducer for actions and effects creators using the respective handlers.
  * @param ac action creator builder result
  * @param handlers action and effect handlers
  * @param initialState the initial state to be used by the reducer
  */
-export function buildReducer(ac, handlersFactory, initialState) {
+function buildReducer(ac, handlersFactory, initialState) {
     var actionHandlers = new Map();
     var actionHandlerFactories = Object.keys(ac.actionCreators).reduce(function (prev, key) {
         var _a;
@@ -30,14 +32,8 @@ export function buildReducer(ac, handlersFactory, initialState) {
             });
         }, _a)));
     }, {});
-    var effectHandlerFactories = Object.keys(ac.effectCreators).reduce(function (prev, key) {
-        var _a;
-        return (__assign({}, prev, (_a = {}, _a[key] = function (a) {
-            actionHandlers.set((ac.namespace + "/" + key).toUpperCase(), a);
-        }, _a)));
-    }, {});
     handlersFactory({
-        handlers: __assign({}, actionHandlerFactories, effectHandlerFactories)
+        handlers: __assign({}, actionHandlerFactories)
     });
     return function (state, action) {
         var finalState = state || initialState;
@@ -45,4 +41,25 @@ export function buildReducer(ac, handlersFactory, initialState) {
         return handler ? handler(finalState, action) : finalState;
     };
 }
-//# sourceMappingURL=builder.js.map
+exports.buildReducer = buildReducer;
+// const TaskActions = createActionBuilder({
+//     namespace: 'CORE/TASKS',
+//     actions: {
+//         create: (args?: { name: string }) => args,
+//         createAsync: (args?: { name: string }) => Promise.resolve(args),
+//     },
+//     thunks: {
+//         doCreate: (args?: { name: string }) => (dispatch) => dispatch({ type: '', payload: args }),
+//     }
+// });
+// TaskActions.actionCreators.create();
+// TaskActions.thunkCreators.doCreate();
+// const reducer = buildReducer(TaskActions, o => {
+//     o.handlers.create((s, a) => s);
+//     o.handlers.createAsync({
+//         fulfilled: (s, a) => s
+//     });
+// }, { tasks: [] });
+// const a = bindActionCreators(TaskActions.actionCreators, () => { } as any);
+// a.create()
+//# sourceMappingURL=reducer-builder.js.map

@@ -9,63 +9,22 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-import { createActionCreator, createAsyncActionCreator } from './action-creators';
-var actions = {
-    add: function (args) { return args; },
-    remove: function (args) { return args; },
-};
-function createActionCreators(namespace, actions) {
-    if (namespace === undefined || actions === undefined) {
-        throw new Error('namespaces/actions cannot be undefined');
-    }
-    var actionKeys = Object.keys(actions);
-    return actionKeys.reduce(function (prev, key) {
+export function createActionBuilder(options) {
+    var namespace = options.namespace, actions = options.actions, thunks = options.thunks;
+    var actionCreators = Object.keys(actions).reduce(function (prev, actionName) {
         var _a;
-        return (__assign({}, prev, (_a = {}, _a[key] = createActionCreator((namespace + "/" + key).toUpperCase(), actions[key]), _a)));
+        var payloadFactory = actions[actionName];
+        return __assign({}, prev, (_a = {}, _a[actionName] = function (args) { return ({
+            type: (namespace + "/" + actionName).toUpperCase(),
+            meta: args,
+            payload: payloadFactory(args)
+        }); }, _a));
     }, {});
-}
-function createEffectCreators(namespace, effects) {
-    if (namespace === undefined || effects === undefined) {
-        throw new Error('namespaces/effects cannot be undefined');
-    }
-    var effectKeys = Object.keys(effects);
-    return effectKeys.reduce(function (prev, key) {
+    var thunkCreators = Object.keys(thunks).reduce(function (prev, thunkName) {
         var _a;
-        var payloadFactory = effects[key];
-        return __assign({}, prev, (_a = {}, _a[key] = createAsyncActionCreator((namespace + "/" + key).toUpperCase(), function (data) { return ({
-            meta: data,
-            payload: {
-                promise: payloadFactory()
-            }
-        }); }), _a));
+        var thunkFactory = thunks[thunkName];
+        return __assign({}, prev, (_a = {}, _a[thunkName] = function (args) { return thunkFactory(args); }, _a));
     }, {});
-}
-;
-export function createActionCreatorBuilder(options) {
-    var actionCreators = createActionCreators(options.namespace, options.actions);
-    var effectCreators = createEffectCreators(options.namespace, options.effects);
-    return {
-        namespace: options.namespace,
-        actionCreators: actionCreators,
-        effectCreators: effectCreators
-    };
-}
-export function bindDispatcher(actionCreatorFactory, dispatch) {
-    return function (args) { return dispatch(actionCreatorFactory.create(args)); };
-}
-export function bindEffectDispatcher(actionCreatorFactory, dispatch) {
-    return function (args) { return dispatch(actionCreatorFactory.create(args)); };
-}
-export function bindActionsToDispatcher(actionCreatorsFatory, dispatch) {
-    return Object.keys(actionCreatorsFatory).reduce(function (prev, key) {
-        var _a;
-        return (__assign({}, prev, (_a = {}, _a[key] = bindDispatcher(actionCreatorsFatory[key], dispatch), _a)));
-    });
-}
-export function bindEffectsToDispatcher(effectCreatorsFatory, dispatch) {
-    return Object.keys(effectCreatorsFatory).reduce(function (prev, key) {
-        var _a;
-        return (__assign({}, prev, (_a = {}, _a[key] = bindEffectDispatcher(effectCreatorsFatory[key], dispatch), _a)));
-    });
+    return { namespace: namespace, actionCreators: actionCreators, thunkCreators: thunkCreators };
 }
 //# sourceMappingURL=action-builder.js.map

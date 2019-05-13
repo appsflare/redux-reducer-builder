@@ -1,45 +1,40 @@
-import { IActionCreatorFactory, IMetaAsyncActionCreatorFactory, IAsyncPayload } from './types';
-import { ReplaceReturnType } from './helpers';
-import { Dispatch } from 'redux';
-export declare type IActionPayloadCreator<TData, TPayload> = (data?: TData) => TPayload | undefined;
-export interface IAsyncActionPayloadCreator<TResult, TData = any, TMeta = any> {
-    (data?: TData): {
-        meta?: TMeta;
-        payload: IAsyncPayload<TResult>;
-    };
+import { Action, AnyAction } from 'redux';
+export interface ThunkDispatch<A extends Action = AnyAction> {
+    <T extends A, TR = any>(action: T | IThunk<TR>): TR;
 }
-export declare type IActionCreatorsMap<ACM> = {
-    [K in keyof ACM]: ACM[K] extends IActionPayloadCreator<infer TData, infer TPayload> ? IActionPayloadCreator<TData, TPayload> : ACM[K];
+export interface IThunk<TResult> {
+    (dispatch: ThunkDispatch, getState: Function, ...args: any[]): TResult;
+}
+export declare type IActionCreatorFactoryComposite<TArgs, TPayload = any, TResult = any> = (args?: TArgs) => TPayload | IThunk<TResult>;
+export declare type IActionCreatorFactory<TArgs, TPayload = any> = (args?: TArgs) => TPayload;
+export declare type IThunkCreatorFactory<TArgs, TResult> = (args?: TArgs) => IThunk<TResult>;
+export declare type IActionCreatorsFactoryMap<T> = {
+    [K in keyof T]: T[K] extends IActionCreatorFactory<infer TArgs, infer TPayload> ? IActionCreatorFactory<TArgs, TPayload> : never;
 };
-export declare type IEffectCreatorsMap<ECM> = {
-    [K in keyof ECM]: ECM[K] extends IAsyncActionPayloadCreator<infer TResult, infer TData, infer TMeta> ? IAsyncActionPayloadCreator<TResult, TData, TMeta> : ECM[K];
+export declare type IThunkCreatorsFactoryMap<T> = {
+    [K in keyof T]: T[K] extends IThunkCreatorFactory<infer TArgs, infer TResult> ? IThunkCreatorFactory<TArgs, TResult> : never;
 };
-interface IActionsCreatorBuilderOptions<TActions, TEffects> {
+export interface ModuleAction<TPayload, TMeta = any> extends Action<string> {
+    payload: TPayload;
+    meta?: TMeta;
+}
+export declare type IActionCreator<TArgs, TPayload, TMeta = any> = (args?: TArgs) => ModuleAction<TPayload, TMeta>;
+export declare type ResultOf<TPayload> = TPayload extends Promise<infer TResult> ? Promise<TResult> : void;
+export declare type IThunkCreator<TArgs, TResult = void> = (args?: TArgs) => IThunk<Promise<TResult>>;
+export declare type IActionCreatorMap<TAFM extends IActionCreatorsFactoryMap<T>, T> = {
+    [K in keyof TAFM]: TAFM[K] extends IActionCreatorFactory<infer TArgs, infer TPayload> ? IActionCreator<TArgs, TPayload, TArgs> : never;
+};
+export declare type IThunkCreatorMap<TAFM extends IThunkCreatorsFactoryMap<T>, T> = {
+    [K in keyof TAFM]: TAFM[K] extends IThunkCreatorFactory<infer TArgs, infer TResult> ? IThunkCreator<TArgs, TResult> : never;
+};
+export interface IActionBuilderOptions<TActions, TThunks> {
     namespace: string;
-    actions: IActionCreatorsMap<TActions>;
-    effects: IEffectCreatorsMap<TEffects>;
+    actions: IActionCreatorsFactoryMap<TActions>;
+    thunks: IThunkCreatorsFactoryMap<TThunks>;
 }
-export declare type IActionCreators<T, TActions = IActionCreatorsMap<T>> = {
-    [K in keyof TActions]: TActions[K] extends IActionPayloadCreator<infer TData, infer TPayload> ? IActionCreatorFactory<TPayload, TData> : IActionCreatorFactory<any, any>;
-};
-export declare type IEffectCreators<T, TEffects = IEffectCreatorsMap<T>> = {
-    [K in keyof TEffects]: TEffects[K] extends IAsyncActionPayloadCreator<infer TResult, infer TData, infer TMeta> ? IMetaAsyncActionCreatorFactory<TResult, TData, TMeta> : IMetaAsyncActionCreatorFactory<any, any, any>;
-};
-export interface IActionCreatorBuilderResult<TActions, TEffects> {
+export interface IActionBuilderResult<TAFM extends IActionCreatorsFactoryMap<TActions>, TTFM extends IThunkCreatorsFactoryMap<TThunks>, TActions = {}, TThunks = {}> {
     namespace: string;
-    actionCreators: IActionCreators<TActions>;
-    effectCreators: IEffectCreators<TEffects>;
+    actionCreators: IActionCreatorMap<TAFM, TActions>;
+    thunkCreators: IThunkCreatorMap<TTFM, TThunks>;
 }
-export declare function createActionCreatorBuilder<TActions, TEffects>(options: IActionsCreatorBuilderOptions<TActions, TEffects>): IActionCreatorBuilderResult<TActions, TEffects>;
-export declare type ActionCreators<A extends IActionCreators<T>, T = {}> = {
-    [K in keyof A]: ReplaceReturnType<A[K]["create"], void>;
-};
-export declare type EffectCreators<E extends IEffectCreators<T>, T = {}> = {
-    [K in keyof E]: ReplaceReturnType<E[K]["create"], ReturnType<E[K]["create"]>["payload"]>;
-};
-export declare type AllActionCreators<A extends IActionCreatorBuilderResult<T1, T2>, T1 = {}, T2 = {}> = ActionCreators<A["actionCreators"]> & EffectCreators<A["effectCreators"]>;
-export declare function bindDispatcher<TPayload, TData = any>(actionCreatorFactory: IActionCreatorFactory<TPayload, TData>, dispatch: Dispatch): ReplaceReturnType<IActionCreatorFactory<TPayload, TData>["create"], void>;
-export declare function bindEffectDispatcher<TResult, TData = any, TMeta = any>(actionCreatorFactory: IMetaAsyncActionCreatorFactory<TResult, TData, TMeta>, dispatch: Dispatch): ReplaceReturnType<IMetaAsyncActionCreatorFactory<TResult, TData, TMeta>["create"], void>;
-export declare function bindActionsToDispatcher<TActions>(actionCreatorsFatory: IActionCreators<TActions>, dispatch: Dispatch): ActionCreators<IActionCreators<TActions>>;
-export declare function bindEffectsToDispatcher<TEffects>(effectCreatorsFatory: IEffectCreators<TEffects>, dispatch: Dispatch): EffectCreators<IEffectCreators<TEffects>>;
-export {};
+export declare function createActionBuilder<TA, TH, TAB extends IActionBuilderOptions<TA, TH>>(options: TAB): IActionBuilderResult<TAB['actions'], TAB['thunks'], TA, TH>;

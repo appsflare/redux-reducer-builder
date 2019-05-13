@@ -1,157 +1,88 @@
-import { createActionCreator, createAsyncActionCreator } from './action-creators';
-import { IActionCreatorFactory, IMetaAsyncActionCreatorFactory, IAsyncPayload } from './types';
-import { ReplaceReturnType } from './helpers';
-import { Dispatch, Action } from 'redux';
-// import { ReplaceReturnType } from './helpers';
+import { Action, AnyAction, Dispatch } from 'redux';
 
-export type IActionPayloadCreator<TData, TPayload> = (data?: TData) => TPayload | undefined;
-
-
-export interface IAsyncActionPayloadCreator<TResult, TData = any, TMeta = any> {
-
-    (data?: TData): {
-        meta?: TMeta;
-        payload: IAsyncPayload<TResult>;
-    };
-
+export interface ThunkDispatch<A extends Action = AnyAction> {
+    <T extends A, TR = any>(action: T | IThunk<TR>): TR;
 }
 
-export type IActionCreatorsMap<ACM> = {
-    [K in keyof ACM]: ACM[K] extends IActionPayloadCreator<infer TData, infer TPayload> ?
-    IActionPayloadCreator<TData, TPayload> : ACM[K];
+export interface IThunk<TResult, TContext = any> {
+    (this: TContext, dispatch: ThunkDispatch, getState: Function, ...args: any[]): TResult;
+}
+
+
+export type IActionCreatorFactory<TArgs, TPayload = any> = (args?: TArgs) => TPayload;
+export type IThunkCreatorFactory<TArgs, TResult, TContext = any> = (this: TContext, sargs?: TArgs) => IThunk<TResult>;
+
+export type IActionCreatorsFactoryMap<T> = {
+    [K in keyof T]: T[K] extends IActionCreatorFactory<infer TArgs, infer TPayload> ?
+    IActionCreatorFactory<TArgs, TPayload> :
+    never;
 };
 
-export type IEffectCreatorsMap<ECM> = {
-    [K in keyof ECM]: ECM[K] extends IAsyncActionPayloadCreator<infer TResult, infer TData, infer TMeta> ?
-    IAsyncActionPayloadCreator<TResult, TData, TMeta> : ECM[K];
+export type IThunkCreatorsFactoryMap<T, TContext = any> = {
+    [K in keyof T]: T[K] extends IThunkCreatorFactory<infer TArgs, infer TResult> ?
+    IThunkCreatorFactory<TArgs, TResult, TContext> : never;
+};
+
+export interface ModuleAction<TPayload, TMeta = any> extends Action<string> {
+    payload: TPayload;
+    meta?: TMeta;
 }
 
+export type IActionCreator<TArgs, TPayload, TMeta = any> = (args?: TArgs) => ModuleAction<TPayload, TMeta>;
 
-interface IActionsCreatorBuilderOptions<TActions, TEffects> {
+export type ResultOf<TPayload> = TPayload extends Promise<infer TResult> ? Promise<TResult> : void;
+
+export type IThunkCreator<TArgs, TResult = void, TContext = any> = (args?: TArgs) => IThunk<Promise<TResult>, TContext>;
+
+export type IActionCreatorMap<TAFM extends IActionCreatorsFactoryMap<T>, T> = {
+    [K in keyof TAFM]: TAFM[K] extends IActionCreatorFactory<infer TArgs, infer TPayload> ?
+    IActionCreator<TArgs, TPayload, TArgs> : never;
+};
+
+export type IThunkCreatorMap<TAFM extends IThunkCreatorsFactoryMap<T, TContext>, T, TContext = any> = {
+    [K in keyof TAFM]: TAFM[K] extends IThunkCreatorFactory<infer TArgs, infer TResult> ?
+    IThunkCreator<TArgs, TResult, TContext> : never;
+};
+
+export interface IActionBuilderOptions<TActions, TThunks> {
     namespace: string;
-    actions: IActionCreatorsMap<TActions>;
-    effects: IEffectCreatorsMap<TEffects>;
+    actions: IActionCreatorsFactoryMap<TActions>;
+    thunks: IThunkCreatorsFactoryMap<TThunks>;
 }
 
-
-export type IActionCreators<T, TActions = IActionCreatorsMap<T>> = {
-    [K in keyof TActions]: TActions[K] extends IActionPayloadCreator<infer TData, infer TPayload> ?
-    IActionCreatorFactory<TPayload, TData> : IActionCreatorFactory<any, any>;
-};
-
-
-const actions = {
-    add: (args: { name: string }) => args,
-    remove: (args: { id: string }) => args,
-};
-
-type TypeOfActions = typeof actions;
-
-
-function createActionCreators<TAPF>(namespace: string, actions: IActionCreatorsMap<TAPF>): IActionCreators<TAPF> {
-    if (namespace === undefined || actions === undefined) {
-        throw new Error('namespaces/actions cannot be undefined');
-    }
-
-    const actionKeys = Object.keys(actions);
-
-    return actionKeys.reduce((prev: any, key: string) => ({
-        ...prev,
-        [key]: createActionCreator(`${namespace}/${key}`.toUpperCase(), (actions as any)[key])
-
-    }), {});
+export interface IActionBuilderResult<TAFM extends IActionCreatorsFactoryMap<TActions>,
+    TTFM extends IThunkCreatorsFactoryMap<TThunks>, TActions = {}, TThunks = {}> {
+    namespace: string;
+    actionCreators: IActionCreatorMap<TAFM, TActions>;
+    thunkCreators: IThunkCreatorMap<TTFM, TThunks, this["actionCreators"]>;
 }
 
+export function createActionBuilder<TA, TH, TAB extends IActionBuilderOptions<TA, TH>>(options: TAB):
+    IActionBuilderResult<TAB['actions'], TAB['thunks'], TA, TH> {
 
-export type IEffectCreators<T, TEffects = IEffectCreatorsMap<T>> = {
-    [K in keyof TEffects]: TEffects[K] extends IAsyncActionPayloadCreator<infer TResult, infer TData, infer TMeta> ?
-    IMetaAsyncActionCreatorFactory<TResult, TData, TMeta> : IMetaAsyncActionCreatorFactory<any, any, any>;
-};
+    const { namespace, actions, thunks } = options;
 
+    const actionCreators = Object.keys(actions).reduce((prev: any, actionName: string) => {
 
-
-function createEffectCreators<TEffects>(namespace: string, effects: IEffectCreatorsMap<TEffects>): IEffectCreators<TEffects> {
-    if (namespace === undefined || effects === undefined) {
-        throw new Error('namespaces/effects cannot be undefined');
-    }
-
-    const effectKeys = Object.keys(effects);
-
-    return effectKeys.reduce((prev: any, key: string) => {
-
-        const payloadFactory = (effects as any)[key];
+        const payloadFactory = (actions as any)[actionName];
         return {
             ...prev,
-            [key]: createAsyncActionCreator(`${namespace}/${key}`.toUpperCase(), (data?: any) => ({
-                meta: data,
-                payload: {
-                    promise: payloadFactory()
-                }
-            }) as any)
+            [actionName]: (args: any) => ({
+                type: `${namespace}/${actionName}`.toUpperCase(),
+                meta: args,
+                payload: payloadFactory(args)
+            })
         };
+    }, {}) as any;
 
-    }, {});
-};
+    const thunkCreators = Object.keys(thunks).reduce((prev: any, thunkName: string) => {
 
-export interface IActionCreatorBuilderResult<TActions, TEffects> {
-    namespace: string;
-    actionCreators: IActionCreators<TActions>;
-    effectCreators: IEffectCreators<TEffects>;
-}
+        const thunkFactory = (thunks as any)[thunkName];
+        return {
+            ...prev,
+            [thunkName]: ((args: any) => thunkFactory(args)).bind(actionCreators)
+        };
+    }, {}) as any;
 
-export function createActionCreatorBuilder<TActions, TEffects>
-    (options: IActionsCreatorBuilderOptions<TActions, TEffects>): IActionCreatorBuilderResult<TActions, TEffects> {
-
-
-    const actionCreators = createActionCreators(options.namespace, options.actions);
-    const effectCreators = createEffectCreators(options.namespace, options.effects);
-
-    return {
-        namespace: options.namespace,
-        actionCreators,
-        effectCreators
-    };
-
-}
-
-
-export type ActionCreators<A extends IActionCreators<T>, T = {}> = {
-    [K in keyof A]: ReplaceReturnType<A[K]["create"], void>;
-};
-export type EffectCreators<E extends IEffectCreators<T>, T = {}> = {
-    [K in keyof E]: ReplaceReturnType<E[K]["create"], ReturnType<E[K]["create"]>["payload"]>;
-};
-
-export type AllActionCreators<A extends IActionCreatorBuilderResult<T1, T2>, T1 = {}, T2 = {}> = ActionCreators<A["actionCreators"]> & EffectCreators<A["effectCreators"]>;
-
-
-
-export function bindDispatcher<TPayload, TData = any>(actionCreatorFactory: IActionCreatorFactory<TPayload, TData>,
-    dispatch: Dispatch): ReplaceReturnType<IActionCreatorFactory<TPayload, TData>["create"], void> {
-    return (args: any) => dispatch(actionCreatorFactory.create(args));
-}
-
-export function bindEffectDispatcher<TResult, TData = any, TMeta = any>(
-    actionCreatorFactory: IMetaAsyncActionCreatorFactory<TResult, TData, TMeta>,
-    dispatch: Dispatch): ReplaceReturnType<IMetaAsyncActionCreatorFactory<TResult, TData, TMeta>["create"], void> {
-    return (args: any) => dispatch(actionCreatorFactory.create(args));
-}
-
-export function bindActionsToDispatcher<TActions>(actionCreatorsFatory: IActionCreators<TActions>,
-    dispatch: Dispatch): ActionCreators<IActionCreators<TActions>> {
-
-    return Object.keys(actionCreatorsFatory).reduce((prev: any, key: string) => ({
-        ...prev,
-        [key]: bindDispatcher((actionCreatorsFatory as any)[key], dispatch)
-    })) as any;
-}
-
-export function bindEffectsToDispatcher<TEffects>(effectCreatorsFatory: IEffectCreators<TEffects>,
-    dispatch: Dispatch): EffectCreators<IEffectCreators<TEffects>> {
-
-    return Object.keys(effectCreatorsFatory).reduce((prev: any, key: string) => ({
-        ...prev,
-        [key]: bindEffectDispatcher((effectCreatorsFatory as any)[key], dispatch)
-    })) as any;
-
+    return { namespace, actionCreators, thunkCreators };
 }
