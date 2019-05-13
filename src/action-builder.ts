@@ -38,7 +38,7 @@ export function createActionCreators<TA, TAB extends IActionBuilderOptions<TA>>(
 
     const { namespace, actions } = options;
 
-    return Object.keys(actions).reduce((prev: any, actionName: string) => {
+    const actionCreators = Object.keys(actions).reduce((prev: any, actionName: string) => {
 
         const payloadFactory = (actions as any)[actionName];
         return {
@@ -50,4 +50,6 @@ export function createActionCreators<TA, TAB extends IActionBuilderOptions<TA>>(
             })
         };
     }, setNamespace({}, namespace));
+
+    return { actionCreators };
 }
