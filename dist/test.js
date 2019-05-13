@@ -4,7 +4,7 @@ var action_builder_1 = require("./action-builder");
 var thunk_builder_1 = require("./thunk-builder");
 var reducer_builder_1 = require("./reducer-builder");
 var dispatchers_1 = require("./dispatchers");
-var TaskActions = action_builder_1.createActionsBuilder({
+var TaskActions = action_builder_1.createActionCreators({
     namespace: 'CORE/TASKS',
     actions: {
         create: function (args) { return args; },
@@ -12,7 +12,7 @@ var TaskActions = action_builder_1.createActionsBuilder({
     }
 });
 TaskActions.actionCreators.create();
-var TaskThunks = thunk_builder_1.createThunksBuilder({
+var TaskThunks = thunk_builder_1.createThunkCreators({
     doCreate: function (args) { return function (dispatch, getState) { return Promise.resolve(args); }; },
     doUpdate: function (args) { return function (dispatch, getState) { }; },
 });

@@ -1,8 +1,8 @@
-import { createActionsBuilder } from './action-builder';
-import { createThunksBuilder } from './thunk-builder';
+import { createActionCreators } from './action-builder';
+import { createThunkCreators } from './thunk-builder';
 import { buildReducer } from './reducer-builder';
 import { bindActionCreators, bindThunkCreator, bindThunkCreators } from './dispatchers';
-var TaskActions = createActionsBuilder({
+var TaskActions = createActionCreators({
     namespace: 'CORE/TASKS',
     actions: {
         create: function (args) { return args; },
@@ -10,7 +10,7 @@ var TaskActions = createActionsBuilder({
     }
 });
 TaskActions.actionCreators.create();
-var TaskThunks = createThunksBuilder({
+var TaskThunks = createThunkCreators({
     doCreate: function (args) { return function (dispatch, getState) { return Promise.resolve(args); }; },
     doUpdate: function (args) { return function (dispatch, getState) { }; },
 });

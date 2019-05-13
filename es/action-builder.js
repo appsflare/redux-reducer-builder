@@ -10,7 +10,7 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 import { setNamespace } from './internal-helpers';
-export function createActionsBuilder(options) {
+export function createActionCreators(options) {
     var namespace = options.namespace, actions = options.actions;
     return Object.keys(actions).reduce(function (prev, actionName) {
         var _a;

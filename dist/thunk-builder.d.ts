@@ -10,4 +10,4 @@ export declare type IThunkCreatorMap<T, TState = any> = {
 export declare type IThunkCreators<TCFM extends IThunkCreatorMap<T, TState>, T, TState = any> = {
     [K in keyof TCFM]: TCFM[K] extends IThunkCreator<infer TArgs, infer TResult> ? IThunkCreator<TArgs, TResult, TState> : never;
 };
-export declare function createThunksBuilder<TState, TCFM extends IThunkCreatorMap<TH, TState>, TH>(thunks: TCFM): TCFM;
+export declare function createThunkCreators<TState, TCFM extends IThunkCreatorMap<TH, TState>, TH>(thunks: TCFM): TCFM;

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-function createThunksBuilder(thunks) {
+function createThunkCreators(thunks) {
     return thunks;
 }
-exports.createThunksBuilder = createThunksBuilder;
+exports.createThunkCreators = createThunkCreators;
 //# sourceMappingURL=thunk-builder.js.map
