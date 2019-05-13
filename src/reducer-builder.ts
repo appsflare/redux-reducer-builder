@@ -52,7 +52,7 @@ export function buildReducer<ABR extends IActionBuilderResult<A>, TState = {}, A
 
     const actionHandlers = new Map<string, IActionHandler<TState, any>>();
 
-    const namespace = getNamespace(ac);
+    const namespace = getNamespace(ac.actionCreators);
     const actionHandlerFactories = Object.keys(ac.actionCreators).reduce((prev: any, key) => ({
         ...prev,
         [key]: (a: any) => {
