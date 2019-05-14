@@ -30,7 +30,7 @@ function buildReducer(ac, handlersFactory, initialState) {
                 return;
             }
             Object.keys(a).forEach(function (stateHandlerKey) {
-                actionHandlers.set((namespace + "/" + key + "-" + stateHandlerKey).toUpperCase(), a[stateHandlerKey]);
+                actionHandlers.set((namespace + "/" + key + "_" + stateHandlerKey).toUpperCase(), a[stateHandlerKey]);
             });
         }, _a)));
     }, {});
